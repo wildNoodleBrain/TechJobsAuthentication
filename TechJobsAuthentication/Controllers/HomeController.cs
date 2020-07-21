@@ -4,34 +4,58 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TechJobsAuthentication.Data;
 using TechJobsAuthentication.Models;
+using TechJobsAuthentication.ViewModels;
 
 namespace TechJobsAuthentication.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private JobDbContext context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(JobDbContext dbContext)
         {
-            _logger = logger;
+            context = dbContext;
         }
 
         public IActionResult Index()
         {
-            return View();
+            List<Job> jobs = context.Jobs.ToList();
+
+            return View(jobs);
         }
 
-        public IActionResult Privacy()
+        [HttpGet("/Add")]
+        public IActionResult Add()
         {
-            return View();
+            AddJobViewModel addJobViewModel = new AddJobViewModel();
+
+            return View(addJobViewModel);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+
+        public IActionResult ProcessAddJobForm(AddJobViewModel addJobViewModel)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (ModelState.IsValid)
+            {
+                Job newJob = new Job
+                {
+                    Name = addJobViewModel.Name,
+                    Employer = addJobViewModel.Employer,
+                    Skill = addJobViewModel.Skill
+                };
+
+                context.Jobs.Add(newJob);
+                context.SaveChanges();
+
+                return Redirect("Index");
+            }
+
+            return View("Add", addJobViewModel);
         }
+
     }
 }
