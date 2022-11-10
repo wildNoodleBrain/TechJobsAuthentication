@@ -26,8 +26,11 @@ namespace TechJobsAuthentication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            var serverVersion = new MySqlServerVersion(new Version(8, 0, 29));
+            var defaultConnection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<JobDbContext>(options =>
-                options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+            options.UseMySql(defaultConnection, serverVersion));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
