@@ -24,7 +24,6 @@ namespace TechJobsAuthentication.Controllers
         public IActionResult Index()
         {
             List<Job> jobs = context.Jobs.ToList();
-
             return View(jobs);
         }
 
